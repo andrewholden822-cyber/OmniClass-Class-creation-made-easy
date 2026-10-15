@@ -1,0 +1,6 @@
+{
+  "name": "OmniClass",
+  "description": "Universal AI online learning portal and class creator that builds full courses, syllabus, lessons, quizzes, and website exports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

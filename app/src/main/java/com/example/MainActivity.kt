@@ -52,6 +52,7 @@ import com.example.ui.screens.ClassroomPortalScreen
 import com.example.ui.screens.CourseLandingScreen
 import com.example.ui.screens.CreateClassStudioScreen
 import com.example.ui.screens.DashboardScreen
+import com.example.ui.screens.LiveWebsiteScreen
 import com.example.ui.theme.OmniClassTheme
 
 class MainActivity : ComponentActivity() {
@@ -97,6 +98,7 @@ fun OmniClassApp(viewModel: OmniClassViewModel = viewModel()) {
             AppScreen.CLASSROOM_LMS -> viewModel.navigateTo(AppScreen.CLASS_LANDING)
             AppScreen.CLASS_LANDING -> viewModel.navigateTo(AppScreen.DASHBOARD)
             AppScreen.CREATE_STUDIO -> viewModel.navigateTo(AppScreen.DASHBOARD)
+            AppScreen.LIVE_WEBSITE -> viewModel.navigateTo(AppScreen.DASHBOARD)
             AppScreen.AUTH -> viewModel.navigateTo(AppScreen.DASHBOARD)
             else -> {}
         }
@@ -118,6 +120,7 @@ fun OmniClassApp(viewModel: OmniClassViewModel = viewModel()) {
                         onNavigateCreate = { viewModel.navigateTo(AppScreen.CREATE_STUDIO) },
                         onLoginClick = { viewModel.setAuthMode(AuthScreenMode.LOGIN) },
                         onLogoutClick = { viewModel.logout() },
+                        onOpenWebsite = { viewModel.openLiveWebsite(activeCourse?.id) },
                         onBackClick = if (uiState.currentScreen != AppScreen.DASHBOARD) {
                             {
                                 when (uiState.currentScreen) {
@@ -151,16 +154,10 @@ fun OmniClassApp(viewModel: OmniClassViewModel = viewModel()) {
                             label = { Text("AI Studio") }
                         )
                         NavigationBarItem(
-                            selected = false,
-                            onClick = {
-                                if (activeCourse != null) {
-                                    viewModel.exportCourseAsWebsite(activeCourse.id)
-                                } else if (allClasses.isNotEmpty()) {
-                                    viewModel.exportCourseAsWebsite(allClasses.first().id)
-                                }
-                            },
-                            icon = { Icon(Icons.Default.Language, contentDescription = "Export Web") },
-                            label = { Text("Web Export") }
+                            selected = uiState.currentScreen == AppScreen.LIVE_WEBSITE,
+                            onClick = { viewModel.openLiveWebsite(activeCourse?.id) },
+                            icon = { Icon(Icons.Default.Language, contentDescription = "Live Website") },
+                            label = { Text("Website") }
                         )
                         NavigationBarItem(
                             selected = false,
@@ -205,16 +202,10 @@ fun OmniClassApp(viewModel: OmniClassViewModel = viewModel()) {
                             label = { Text("AI Create") }
                         )
                         NavigationRailItem(
-                            selected = false,
-                            onClick = {
-                                if (activeCourse != null) {
-                                    viewModel.exportCourseAsWebsite(activeCourse.id)
-                                } else if (allClasses.isNotEmpty()) {
-                                    viewModel.exportCourseAsWebsite(allClasses.first().id)
-                                }
-                            },
-                            icon = { Icon(Icons.Default.Language, contentDescription = "Web Site") },
-                            label = { Text("Export") }
+                            selected = uiState.currentScreen == AppScreen.LIVE_WEBSITE,
+                            onClick = { viewModel.openLiveWebsite(activeCourse?.id) },
+                            icon = { Icon(Icons.Default.Language, contentDescription = "Live Website") },
+                            label = { Text("Website") }
                         )
                     }
                 }
@@ -258,7 +249,8 @@ fun OmniClassApp(viewModel: OmniClassViewModel = viewModel()) {
                                     modules = activeModules,
                                     onEnterClassroom = { viewModel.navigateTo(AppScreen.CLASSROOM_LMS) },
                                     onToggleEnrollment = { viewModel.toggleEnrollment(activeCourse.id) },
-                                    onExportWebsite = { viewModel.exportCourseAsWebsite(activeCourse.id) }
+                                    onExportWebsite = { viewModel.exportCourseAsWebsite(activeCourse.id) },
+                                    onLaunchLiveWebsite = { viewModel.openLiveWebsite(activeCourse.id) }
                                 )
                             }
                         }
@@ -292,6 +284,16 @@ fun OmniClassApp(viewModel: OmniClassViewModel = viewModel()) {
                                 generationStatus = uiState.generationStatus,
                                 onGenerate = { prompt, level, dur, aud, tone ->
                                     viewModel.generateAnyClass(prompt, level, dur, aud, tone)
+                                }
+                            )
+                        }
+                        AppScreen.LIVE_WEBSITE -> {
+                            LiveWebsiteScreen(
+                                htmlContent = uiState.exportedHtml,
+                                courseTitle = uiState.activeWebsiteCourseTitle,
+                                onBack = {
+                                    if (activeCourse != null) viewModel.navigateTo(AppScreen.CLASS_LANDING)
+                                    else viewModel.navigateTo(AppScreen.DASHBOARD)
                                 }
                             )
                         }

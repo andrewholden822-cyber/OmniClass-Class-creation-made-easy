@@ -57,6 +57,7 @@ fun CourseLandingScreen(
     onEnterClassroom: () -> Unit,
     onToggleEnrollment: () -> Unit,
     onExportWebsite: () -> Unit,
+    onLaunchLiveWebsite: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val takeaways = mutableListOf<String>()
@@ -171,6 +172,16 @@ fun CourseLandingScreen(
                         }
 
                         OutlinedButton(
+                            onClick = onLaunchLiveWebsite,
+                            modifier = Modifier
+                                .height(48.dp)
+                                .testTag("launch_live_website_button"),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Open Live Site")
+                        }
+
+                        OutlinedButton(
                             onClick = onExportWebsite,
                             modifier = Modifier
                                 .height(48.dp)
@@ -179,7 +190,7 @@ fun CourseLandingScreen(
                         ) {
                             Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Export Web Site")
+                            Text("Export")
                         }
                     }
                 }

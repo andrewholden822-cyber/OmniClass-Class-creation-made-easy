@@ -23,7 +23,8 @@ enum class AppScreen {
     DASHBOARD,
     CLASS_LANDING,
     CLASSROOM_LMS,
-    CREATE_STUDIO
+    CREATE_STUDIO,
+    LIVE_WEBSITE
 }
 
 enum class AuthScreenMode {
@@ -60,6 +61,7 @@ data class UiState(
     val quizAnswers: Map<String, Int> = emptyMap(),
     val isQuizSubmitted: Boolean = false,
     val exportedHtml: String? = null,
+    val activeWebsiteCourseTitle: String = "OmniClass Portal",
     val showExportDialog: Boolean = false,
     val toastMessage: String? = null
 )
@@ -334,6 +336,27 @@ class OmniClassViewModel(application: Application) : AndroidViewModel(applicatio
                 exportedHtml = html,
                 showExportDialog = true
             )
+        }
+    }
+
+    fun openLiveWebsite(courseId: String? = null) {
+        viewModelScope.launch {
+            val targetId = courseId ?: _uiState.value.activeCourseId ?: allClasses.value.firstOrNull()?.id
+            if (targetId != null) {
+                val html = repository.exportCourseAsWebsite(targetId)
+                val course = allClasses.value.find { it.id == targetId }
+                _uiState.value = _uiState.value.copy(
+                    currentScreen = AppScreen.LIVE_WEBSITE,
+                    exportedHtml = html,
+                    activeWebsiteCourseTitle = course?.title ?: "OmniClass Portal"
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    currentScreen = AppScreen.LIVE_WEBSITE,
+                    exportedHtml = null,
+                    activeWebsiteCourseTitle = "OmniClass Portal"
+                )
+            }
         }
     }
 
